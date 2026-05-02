@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omega Estudios - Hyper Nebula v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-dark: #23001f;
+            --purple-mid: #461943;
+            --purple-bright: #70286f;
+            --yellow-glow: #ffffa2;
+            --lime-accent: #d7e000;
+            --glitch-cyan: #00f2ff;
+            --glitch-pink: #ff00ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; cursor: none; }
+        
+        body { 
+            background: var(--deep-dark);
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        /* --- PANTALLA DE CARGA --- */
+        #loading-screen {
+            position: fixed; inset: 0; background: var(--deep-dark);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 1s;
+        }
+        .load-bar-container { width: 300px; height: 20px; border: 2px solid var(--lime-accent); margin-top: 20px; }
+        #load-bar { width: 0%; height: 100%; background: var(--lime-accent); box-shadow: 0 0 15px var(--lime-accent); }
+
+        .scanlines {
+            position: fixed; inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%; pointer-events: none; z-index: 100;
+        }
+
+        .nebula-bg {
+            position: fixed; inset: -50px;
+            background: 
+                radial-gradient(circle at 20% 30%, var(--purple-bright) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, var(--purple-mid) 0%, transparent 50%);
+            filter: blur(80px); z-index: -1;
+            transition: transform 0.1s ease-out;
+        }
+
+        .glitch { position: relative; color: var(--yellow-glow); text-shadow: 0 0 15px var(--yellow-glow); font-size: 1.8rem; }
+        .glitch::before, .glitch::after {
+            content: "OMEGA ESTUDIOS"; position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8;
+        }
+        .glitch::before { color: var(--glitch-cyan); z-index: -1; animation: glitch-anim 0.3s infinite; }
+        .glitch::after { color: var(--glitch-pink); z-index: -2; animation: glitch-anim 0.3s infinite reverse; }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        .header-glow {
+            background: rgba(87, 37, 84, 0.3); backdrop-filter: blur(25px);
+            border: 3px solid var(--lime-accent); border-radius: 40px;
+            padding: 30px 60px; margin-bottom: 50px;
+            box-shadow: 0 0 30px var(--purple-bright);
+            animation: floating 4s ease-in-out infinite; z-index: 10;
+        }
+
+        .main-layout { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 30px; 
+            width: 90%; 
+            max-width: 900px; 
+            z-index: 10; 
+        }
+
+        .card {
+            background: rgba(35, 0, 31, 0.7); backdrop-filter: blur(20px);
+            border: 2px solid var(--purple-bright); border-radius: 25px; padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            animation: pulse-glow 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            from { border-color: var(--purple-bright); box-shadow: 0 0 15px var(--purple-bright); }
+            to { border-color: var(--lime-accent); box-shadow: 0 0 35px rgba(215, 224, 0, 0.4); }
+        }
+
+        .step-title {
+            color: var(--lime-accent);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .step-text {
+            font-size: 0.75rem;
+            line-height: 2;
+            margin-bottom: 35px;
+            color: #fff;
+        }
+
+        .btn-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 20px;
+            background: transparent; color: var(--yellow-glow); border: 2px solid var(--yellow-glow);
+            font-family: inherit; font-size: 0.6rem; border-radius: 15px;
+            transition: all 0.4s ease;
+        }
+        .btn:hover { background: var(--yellow-glow); color: var(--deep-dark); transform: translateY(-5px); box-shadow: 0 5px 15px var(--yellow-glow); }
+        .btn:disabled { opacity: 0.6; cursor: wait; }
+
+        .payment-card {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .payment-box {
+            background: rgba(0,0,0,0.4); border: 2px dashed var(--lime-accent);
+            padding: 20px; border-radius: 20px; margin-top: 15px;
+        }
+        .payment-info { font-size: 0.8rem !important; color: var(--lime-accent) !important; letter-spacing: 2px; }
+
+        #cursor-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+        @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    </style>
+</head>
+<body>
+
+<div id="loading-screen">
+    <p>INICIALIZANDO OMEGA ESTUDIOS...</p>
+    <div class="load-bar-container"><div id="load-bar"></div></div>
+</div>
+
+<div class="scanlines"></div>
+<div class="nebula-bg" id="nebula"></div>
+<canvas id="cursor-canvas"></canvas>
+
+<div class="header-glow">
+    <h1 class="glitch">OMEGA ESTUDIOS</h1>
+</div>
+
+<div class="main-layout">
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 40px; color: var(--glitch-cyan);">INSTALACIÓN RÁPIDA</h2>
+        
+        <span class="step-title">PASO 1: SK LAUNCHER</span>
+        <p class="step-text">Entra a la web de SK Launcher, ve a <b>Cuenta > Personalización</b> y sube tu capa y skin directamente.</p>
+
+        <span class="step-title">PASO 2: CUSTOM CAPES (MOD)</span>
+        <p class="step-text">Si no usas SK Launcher, baja el mod <b>Custom Capes</b> para activar tu capa personalizada gratis.</p>
+
+        <span class="step-title">PASO 3: PREMIUM</span>
+        <p class="step-text">En el Launcher Oficial, pon tu skin y usa el mod <b>Custom Capes</b> para ver la capa de Omega Estudios.</p>
+    </div>
+
+    <div class="btn-container">
+        <!-- Enlaces de descarga directa configurados -->
+        <button class="btn" id="btn-capa" onclick="handleDownload('btn-capa', 'https://drive.google.com/uc?export=download&id=1th66EsVqKsnfnCUddVc192tjvHJkRp_N')">DESCARGAR CAPA</button>
+        <button class="btn" id="btn-skin" onclick="handleDownload('btn-skin', 'https://drive.google.com/uc?export=download&id=1tsdwYamT9dvg5ypM2Y2d5Vtp0LQf3QrB')">DESCARGAR SKIN</button>
+        <button class="btn" id="btn-mods" onclick="handleDownload('btn-mods', 'https://modrinth.com/mod/custom-capes')">DESCARGAR MODS</button>
+    </div>
+
+    <div class="card payment-card">
+        <h2 style="font-size: 0.6rem; color: var(--yellow-glow);">¿APOYO PARA EL CANAL? BDV VENEZUELA</h2>
+        <div class="payment-box">
+            <p class="payment-info">V-16.413.132<br>0424-1511513<br>BANCO DE VENEZUELA (0102)</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Lógica de pantalla de carga
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        document.getElementById('load-bar').style.width = Math.min(progress, 100) + '%';
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => { 
+                document.getElementById('loading-screen').style.opacity = '0'; 
+                setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 1000); 
+            }, 500);
+        }
+    }, 100);
+
+    // Lógica de descarga automática
+    function handleDownload(btnId, url) {
+        const btn = document.getElementById(btnId);
+        const originalText = btn.innerText;
+        let seconds = 3;
+        btn.disabled = true;
+        btn.innerText = `ESPERE ${seconds}s`;
+
+        const countdown = setInterval(() => {
+            seconds--;
+            if (seconds > 0) {
+                btn.innerText = `ESPERE ${seconds}s`;
+            } else {
+                clearInterval(countdown);
+                btn.innerText = "¡DESCARGANDO!";
+                
+                if(url !== '#') {
+                    // Crea un elemento invisible para disparar la descarga
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    link.download = ''; 
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }, 1500);
+            }
+        }, 1000);
+    }
+
+    // Efecto del cursor y nebula
+    const canvas = document.getElementById('cursor-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    let mouse = { x: 0, y: 0 };
+    let rotation = 0;
+    const palette = ['#ffffa2', '#d7e000', '#00f2ff', '#ff00ff'];
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX; mouse.y = e.clientY;
+        const xNebula = (window.innerWidth / 2 - e.pageX) / 40;
+        const yNebula = (window.innerHeight / 2 - e.pageY) / 40;
+        document.getElementById('nebula').style.transform = `translate(${xNebula}px, ${yNebula}px)`;
+    });
+
+    function drawCursor() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        rotation += 0.05;
+        ctx.save();
+        ctx.translate(mouse.x, mouse.y);
+        ctx.rotate(rotation);
+        ctx.fillStyle = palette[Math.floor((Date.now()/500)%4)];
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.fillRect(-10, -10, 20, 20);
+        ctx.restore();
+        requestAnimationFrame(drawCursor);
+    }
+    drawCursor();
+</script>
+</body>
+</html>
